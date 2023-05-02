@@ -22,7 +22,10 @@
 
 -- [[ Table/Dictionary of peripherals ]] --
 
--- This table/dictionary is composed of all "CC:tweaked"/"ComputerCraft" and "Advanced Peripherals" peripherals to date (27/04/2023)
+-- This table/dictionary is composed of all "CC:tweaked"/"ComputerCraft" and "Advanced Peripherals" peripherals to date (02/05/2023)
+-- Table/Dictionary modification through this library is deprecated.
+-- All functions who need peripheral tables/dictionarys must accept custom tables/dictionarys else default to local table/dictionary.
+
 
 -- [ Table layout ] --
 -- <peripheral alias> = "<peripheral label name>",
@@ -36,7 +39,7 @@
 -- [ Add a peripheral ] --
 -- If another peripheral is needed, add another line to the peripherals with the same Table layout
 
-local peripherals_table = {
+local peripherals_default_table = {
     Floppy = "drive",
     Printy = "printer",
     Sound = "speaker",
@@ -58,13 +61,30 @@ local peripherals_table = {
 
 
 --[[ getPeripherals #0 ]]--
-function getPeripherals()
-    for alias, label in pairs(peripherals_table) do
+function getPeripherals(peripherals_custom_table)
+    local table = defaultTable(peripherals_custom_table)
+    for alias, label in pairs(table) do
         if peripheral.find(label) then
-            peripherals_table[alias] = peripheral.find(label)
+            table[alias] = peripheral.find(label)
         else
-            peripherals_table[alias] = "undefined"
+            table[alias] = "undefined"
         end
     end
-    return peripherals_table
+    return table
+end
+
+--[[ defaultTable #1 ]]--
+function defaultTable(peripherals_custom_table)
+    return peripherals_custom_table or peripherals_default_table
+end
+
+--[[ isPeripheralType #2 ]]--
+function isPeripheralType(peripheralAlias, compareThisLabel)
+    if peripheralAlias == "undefined" then
+       return 0
+    end
+    if peripheral.getType(peripheralAlias) ~= tostring(compareThisLabel) then
+        return 0
+    end
+    return 1
 end
